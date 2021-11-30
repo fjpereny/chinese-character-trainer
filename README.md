@@ -1,1 +1,1 @@
-# chinese-character-trainer
+# Chinese Character Trainer
