@@ -1,0 +1,5 @@
+/home/frank/GitHub/chinese-character-trainer/binaries/CMakeFiles/rebuild_cache.dir
+/home/frank/GitHub/chinese-character-trainer/binaries/CMakeFiles/edit_cache.dir
+/home/frank/GitHub/chinese-character-trainer/binaries/CMakeFiles/ChineseCharacterTrainer.dir
+/home/frank/GitHub/chinese-character-trainer/binaries/CMakeFiles/ChineseCharacterTrainer_autogen_timestamp_deps.dir
+/home/frank/GitHub/chinese-character-trainer/binaries/CMakeFiles/ChineseCharacterTrainer_autogen.dir
