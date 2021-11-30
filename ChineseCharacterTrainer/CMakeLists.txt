@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(ChineseCharacterTrainer VERSION 0.1 LANGUAGES CXX)
+project(ChineseCharacterTrainer VERSION 0.0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -14,13 +14,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
 
-set(TS_FILES ChineseCharacterTrainer_en_US.ts)
+set(TS_FILES translations/ChineseCharacterTrainer_en_US.ts)
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
+        source/main.cpp
+
+        source/mainwindow.cpp
+        source/mainwindow.h
+        source/mainwindow.ui
+
+        source/aboutdialog.cpp
+        source/aboutdialog.h
+        source/aboutdialog.ui
+
+        resources/resources.qrc
         ${TS_FILES}
 )
 

@@ -41,8 +41,9 @@ endif()
 # _directory_contents at /home/frank/Qt/6.2.1/gcc_64/lib/cmake/Qt6LinguistTools/Qt6LinguistToolsMacros.cmake:79 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/*.cpp")
 set(OLD_GLOB
-  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/main.cpp"
-  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/mainwindow.cpp"
+  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/source/aboutdialog.cpp"
+  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/source/main.cpp"
+  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/source/mainwindow.cpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
@@ -61,7 +62,8 @@ endif()
 # _directory_contents at /home/frank/Qt/6.2.1/gcc_64/lib/cmake/Qt6LinguistTools/Qt6LinguistToolsMacros.cmake:79 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/*.h")
 set(OLD_GLOB
-  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/mainwindow.h"
+  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/source/aboutdialog.h"
+  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/source/mainwindow.h"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
@@ -143,6 +145,7 @@ endif()
 # _directory_contents at /home/frank/Qt/6.2.1/gcc_64/lib/cmake/Qt6LinguistTools/Qt6LinguistToolsMacros.cmake:79 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/*.qrc")
 set(OLD_GLOB
+  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/resources/resources.qrc"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
@@ -161,7 +164,8 @@ endif()
 # _directory_contents at /home/frank/Qt/6.2.1/gcc_64/lib/cmake/Qt6LinguistTools/Qt6LinguistToolsMacros.cmake:79 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/*.ui")
 set(OLD_GLOB
-  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/mainwindow.ui"
+  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/source/aboutdialog.ui"
+  "/home/frank/GitHub/chinese-character-trainer/ChineseCharacterTrainer/source/mainwindow.ui"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
