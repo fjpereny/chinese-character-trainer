@@ -148,6 +148,10 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
         shape = "Falling Left Stroke";
     else if (x_direction == 1 && y_direction == -1 && delta_x >= 50 && delta_y >= 50)
         shape = "Falling Right Stroke";
+    else if (x_direction == -1 && y_direction == 1 && delta_x >= 50 && delta_y >= 50)
+        shape = "Rising Left Stroke";
+    else if (x_direction == 1 && y_direction == 1 && delta_x >= 50 && delta_y >= 50)
+        shape = "Rising Right Stroke";
     else
         shape = "Dot";
 
