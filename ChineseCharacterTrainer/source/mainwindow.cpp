@@ -7,6 +7,7 @@
 
 #include <QEvent>
 #include <QKeyEvent>
+#include <QPainter>
 #include <QMouseEvent>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -55,6 +56,8 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     std::cout << "Mouse Pressed" << std::endl;
+    mouse_drag_points_x->clear();
+    mouse_drag_points_y->clear();
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
@@ -116,16 +119,38 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     delta_y = max_y - min_y;
     double delta_x_y_ratio = (double)delta_x / (double)delta_y;
 
+    // Direction positive integer for up/right, negative for down/left
+    int x_direction = 0;
+    if (mouse_drag_points_x->size() > 1)
+    {
+        int x_diff = mouse_drag_points_x->at(mouse_drag_points_x->size()-1) - mouse_drag_points_x->at(0);
+        if (x_diff > 0)
+            x_direction = 1;
+        else if (x_diff < 0)
+            x_direction = -1;
+    }
+    int y_direction = 0;
+    if (mouse_drag_points_y->size() > 1)
+    {
+        int y_diff = mouse_drag_points_y->at(mouse_drag_points_y->size()-1) - mouse_drag_points_y->at(0);
+        if (y_diff > 0)
+            y_direction = -1;
+        else if (y_diff < 0)
+            y_direction = 1;
+    }
+
     std::string shape;
     if (delta_x_y_ratio >= 2.5 && delta_x >= 50)
         shape = "Horizontal Stroke";
     else if (delta_x_y_ratio <= 0.4 && delta_y >= 50)
         shape = "Vertical Stroke";
+    else if (x_direction == -1 && y_direction == -1 && delta_x >= 50 && delta_y >= 50)
+        shape = "Falling Left Stroke";
+    else if (x_direction == 1 && y_direction == -1 && delta_x >= 50 && delta_y >= 50)
+        shape = "Falling Right Stroke";
     else
         shape = "Dot";
 
-    mouse_drag_points_x->clear();
-    mouse_drag_points_y->clear();
     std::cout << "Mouse Released" << std::endl;
     std::cout << "Max X: " << max_x << std::endl;
     std::cout << "Min X: " << min_x << std::endl;
@@ -137,6 +162,30 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     std::cout << "Average X: " << ave_x << std::endl;
     std::cout << "Average Y: " << ave_y << std::endl;
     std::cout << "Shape: " << shape << std::endl;
+    std::cout << "Horizontal Direction: " << x_direction << std::endl;
+    std::cout << "Vertical Direction: " << y_direction << std::endl;
 
     ui->strokeLabel->setText(QString::fromStdString(shape));
+}
+
+
+void MainWindow::paintEvent(QPaintEvent *event)
+{
+    int thickness = 5;
+    int num_of_points = mouse_drag_points_x->size();
+
+    QPainter painter(this);
+    painter.setPen(Qt::red);
+    for (int i=0; i<num_of_points; ++i)
+    {
+        for (int tx=-thickness; tx<=thickness; ++tx)
+        {
+            for (int ty=-thickness; ty<=thickness; ++ty)
+            {
+                QPoint p(mouse_drag_points_x->at(i)+ tx, mouse_drag_points_y->at(i) + ty);
+                painter.drawPoint(p);
+            }
+        }
+    }
+    painter.end();
 }

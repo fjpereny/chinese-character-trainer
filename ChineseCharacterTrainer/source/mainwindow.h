@@ -24,6 +24,8 @@ private slots:
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
 
+    void paintEvent(QPaintEvent *event);
+
 private:
     Ui::MainWindow *ui;
 
