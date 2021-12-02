@@ -139,19 +139,264 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
             y_direction = 1;
     }
 
+    // Line Path Segments
+    int num_of_points_x = mouse_drag_points_x->size();
+    int num_of_points_y = mouse_drag_points_y->size();
+
+    int num_of_segments = 6;
+    bool enough_x_points = num_of_points_x >= num_of_segments;
+    bool enough_y_points = num_of_points_y >= num_of_segments;
+    bool enough_points = enough_x_points && enough_y_points;
+
+    int segment_interval_x = 0;
+    int segment_interval_y = 0;
+    if (num_of_segments != 0 && enough_points)
+    {
+        segment_interval_x = num_of_points_x / num_of_segments;
+        segment_interval_y = num_of_points_y / num_of_segments;
+    }
+
+    std::vector<std::vector<int>> segments_x;
+    std::vector<std::vector<int>> segments_y;
+    if (enough_points)
+    {
+        for (int i=0; i<num_of_segments; ++i)
+        {
+        std::vector<int> segment_x(mouse_drag_points_x->begin() + (i * segment_interval_x),
+                                   mouse_drag_points_x->begin() + ((i + 1) * segment_interval_x));
+        std::vector<int> segment_y(mouse_drag_points_y->begin() + (i * segment_interval_y),
+                                   mouse_drag_points_y->begin() + ((i + 1) * segment_interval_y));
+
+        segments_x.push_back(segment_x);
+        segments_y.push_back(segment_y);
+        }
+    }
+
+    // Segment Min/Max/Delta
+    std::vector<int> segments_x_max;
+    std::vector<int> segments_y_max;
+    std::vector<int> segments_x_min;
+    std::vector<int> segments_y_min;
+    std::vector<int> segments_x_delta;
+    std::vector<int> segments_y_delta;
+    if (enough_points)
+    {
+        for (int i=0; i<segments_x.size(); ++i)
+        {
+            int max = segments_x.at(i).at(0);
+            int min = segments_x.at(i).at(0);
+            for (int j=0; j<segments_x.at(i).size(); ++j)
+            {
+                if (segments_x.at(i).at(j) > max)
+                    max = segments_x.at(i).at(j);
+                if (segments_x.at(i).at(j) < min)
+                    min = segments_x.at(i).at(j);
+            }
+            segments_x_max.push_back(max);
+            segments_x_min.push_back(min);
+            segments_x_delta.push_back(max - min);
+        }
+        for (int i=0; i<segments_y.size(); ++i)
+        {
+            int max = segments_y.at(i).at(0);
+            int min = segments_y.at(i).at(0);
+            for (int j=0; j<segments_y.at(i).size(); ++j)
+            {
+                if (segments_y.at(i).at(j) > max)
+                    max = segments_y.at(i).at(j);
+                if (segments_y.at(i).at(j) < min)
+                    min = segments_y.at(i).at(j);
+            }
+            segments_y_max.push_back(max);
+            segments_y_min.push_back(min);
+            segments_y_delta.push_back(max - min);
+        }
+    }
+
+    // Segmenta Delta X/Y Ratio
+    std::vector<double> segments_delta_XY_ratio;
+    if (enough_points)
+    {
+        for (int i=0; i<segments_x_delta.size(); ++i)
+        {
+            double ratio = ((double)segments_x_delta.at(i)) / ((double)segments_y_delta.at(i));
+            segments_delta_XY_ratio.push_back(ratio);
+        }
+    }
+
+    // Segment Direction
+    std::vector<int> segment_directions_x;
+    std::vector<int> segment_directions_y;
+    if (enough_points)
+    {
+        for (int i=0; i<num_of_segments; ++i)
+        {
+            if (segments_x.at(i).back() - segments_x.at(i).front() > 0)
+                segment_directions_x.push_back(1);
+            else if (segments_x.at(i).back() - segments_x.at(i).front() < 0)
+                segment_directions_x.push_back(-1);
+            else
+                segment_directions_x.push_back(0);
+        }
+        for (int i=0; i<num_of_segments; ++i)
+        {
+            if (segments_y.at(i).back() - segments_y.at(i).front() > 0)
+                segment_directions_y.push_back(-1);
+            else if (segments_y.at(i).back() - segments_y.at(i).front() < 0)
+                segment_directions_y.push_back(1);
+            else
+                segment_directions_y.push_back(0);
+        }
+    }
+
+    int x_dir_changes = 0;
+    int y_dir_changes = 0;
+    if (enough_points)
+    {
+        for (int i=0; i<segment_directions_x.size() - 1; ++i)
+        {
+            if (segment_directions_x.at(i) != segment_directions_x.at(i + 1))
+                x_dir_changes += 1;
+        }
+        for (int i=0; i<segment_directions_y.size() - 1; ++i)
+        {
+            if (segment_directions_y.at(i) != segment_directions_y.at(i + 1))
+                y_dir_changes += 1;
+        }
+    }
+
     std::string shape;
-    if (delta_x_y_ratio >= 2.5 && delta_x >= 50)
+    if (!enough_points)
+        shape = "Dot";
+
+    else if (segment_directions_x.front() == 1
+             && segment_directions_x.back() == -1
+             && segment_directions_y.back() == 1
+             && segments_delta_XY_ratio.front() >= 1.5
+             && x_dir_changes >= 3)
+        shape = "Double Horizontal-Vertical Stroke (Hooked)";
+
+    else if (delta_x_y_ratio >= 2.5
+             && delta_x >= 50
+             && x_direction == -1)
+        shape = "Horizontal Stroke\n(Backwards!)";
+
+    else if (delta_x_y_ratio >= 2.5
+             && delta_x >= 50
+             && segment_directions_x.back() == -1)
+        shape = "Horizontal Stroke (Hooked)";
+
+    else if (delta_x_y_ratio >= 2.5
+             && delta_x >= 50)
         shape = "Horizontal Stroke";
-    else if (delta_x_y_ratio <= 0.4 && delta_y >= 50)
+
+    else if (delta_x_y_ratio <= 0.2
+             && delta_y >= 50
+             && y_direction == 1)
+        shape = "Vertical Stroke\n(Backwards!)";
+
+    else if (delta_x_y_ratio <= 0.2
+             && delta_y >= 50
+             && segment_directions_y.back() == 1
+             && segment_directions_x.back() == -1)
+        shape = "Vertical Stroke (Hooked)";
+
+    else if (delta_x_y_ratio <= 0.2
+             && delta_y >= 50
+             && segment_directions_y.back() == 1
+             && segment_directions_x.back() == 1)
+        shape = "Vertical Stroke (Hooked)\n(Backwards!)";
+
+    else if (delta_x_y_ratio <= 0.2 && delta_y >= 50)
         shape = "Vertical Stroke";
-    else if (x_direction == -1 && y_direction == -1 && delta_x >= 50 && delta_y >= 50)
+
+    else if (segment_directions_x.front() == 1
+             && segment_directions_x.back() == -1
+             && segment_directions_y.back() == 1
+             && segments_delta_XY_ratio.front() >= 2.5)
+        shape = "Horizontal-Vertical Stroke (Hooked)";
+
+    else if (segment_directions_x.front() == 1
+             && segment_directions_x.back() == 1
+             && segment_directions_y.back() == 1
+             && segments_delta_XY_ratio.front() >= 2.5)
+        shape = "Horizontal-Vertical Stroke (Hooked)\n(Backwards!)";
+
+    else if (segment_directions_x.front() == 1
+             && segment_directions_y.back() == -1
+             && segments_delta_XY_ratio.front() >= 2.5
+             && segments_delta_XY_ratio.back() <= 0.4)
+        shape = "Horizontal-Vertical Stroke";
+
+    else if (x_direction == 1
+             && y_direction == -1
+             && segment_directions_y.front() == -1
+             && segment_directions_y.back() == 1
+             && segments_delta_XY_ratio.front() <= 0.3
+             && segments_y_delta.back() >= 25)
+        shape = "Vertical-Horizontal Stroke (Hooked)";
+
+    else if (segment_directions_y.front() == -1
+             && segment_directions_x.back() == 1
+             && segments_delta_XY_ratio.front() <= 0.4
+             && segments_delta_XY_ratio.back() >= 2.5)
+        shape = "Vertical-Horizontal Stroke";
+
+    else if (segment_directions_x.front() == 1
+             && segment_directions_x.back() == -1
+             && segment_directions_y.back() == -1
+             && segments_delta_XY_ratio.front() >= 2.5
+             && segments_delta_XY_ratio.back() >= 0.5
+             && segments_delta_XY_ratio.back() <= 1.5)
+        shape = "Horizontal-Falling Right Stroke";
+
+    else if (x_direction == -1
+             && y_direction == -1
+             && delta_x >= 50
+             && delta_y >= 50
+             && segment_directions_y.back() == 1)
+        shape = "Falling Left Stroke (Hooked)";
+
+    else if (x_direction == -1
+             && y_direction == -1
+             && delta_x >= 50
+             && delta_y >= 50)
         shape = "Falling Left Stroke";
-    else if (x_direction == 1 && y_direction == -1 && delta_x >= 50 && delta_y >= 50)
+
+    else if (x_direction == 1
+             && y_direction == -1
+             && segment_directions_y.back() == 1
+             && segment_directions_x.back() == -1
+             && delta_x >= 50
+             && delta_y >= 50)
+        shape = "Falling Right Stroke (Hooked Left)";
+
+    else if (x_direction == 1
+             && y_direction == -1
+             && segment_directions_y.back() == 1
+             && segment_directions_x.back() == 1
+             && delta_x >= 50
+             && delta_y >= 50)
+        shape = "Falling Right Stroke (Hooked Right)";
+
+    else if (x_direction == 1
+             && y_direction == -1
+             && delta_x >= 50
+             && delta_y >= 50)
         shape = "Falling Right Stroke";
-    else if (x_direction == -1 && y_direction == 1 && delta_x >= 50 && delta_y >= 50)
+
+    else if (x_direction == -1
+             && y_direction == 1
+             && delta_x >= 50
+             && delta_y >= 50)
         shape = "Rising Left Stroke";
-    else if (x_direction == 1 && y_direction == 1 && delta_x >= 50 && delta_y >= 50)
+
+    else if (x_direction == 1
+             && y_direction == 1
+             && delta_x >= 50
+             && delta_y >= 50)
         shape = "Rising Right Stroke";
+
     else
         shape = "Dot";
 
@@ -168,6 +413,25 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     std::cout << "Shape: " << shape << std::endl;
     std::cout << "Horizontal Direction: " << x_direction << std::endl;
     std::cout << "Vertical Direction: " << y_direction << std::endl;
+    std::cout << "X Direction Changes: " << x_dir_changes << std::endl;
+    std::cout << "Y Direction Changes: " << y_dir_changes << std::endl;
+
+    for (int i=0; i<segments_x.size(); ++i)
+    {
+        std::cout << "X Segment " << i << ": " <<
+                     segments_x.at(i).front() << " " <<
+                     segments_x.at(i).back() << "\tDirection: " <<
+                     segment_directions_x.at(i) <<
+                     std::endl;
+    }
+    for (int i=0; i<segments_y.size(); ++i)
+    {
+        std::cout << "Y Segment " << i << ": " <<
+                     segments_y.at(i).front() << " " <<
+                     segments_y.at(i).back() << "\tDirection: " <<
+                     segment_directions_y.at(i) <<
+                     std::endl;
+    }
 
     ui->strokeLabel->setText(QString::fromStdString(shape));
 }
